@@ -10,27 +10,35 @@ import (
 
 	vkapi "github.com/Dimonchik0036/vk-api"
 	discordgo "github.com/bwmarrin/discordgo"
-	//dg *discordgo.Session
 )
 
 var (
-	chatID     int64
-	consoleMSG string
-	vkToken    string
-	dg         *discordgo.Session
-	botToken   string
-)
-
+	chatID     		int64
+	consoleMSG 		string
+	vkToken  		string
+	dg        	        *discordgo.Session
+	botToken  		string
+        discordChannelID 	string
+	discordBotID 		string
+ 	myID			int64
+	
+	//CHANGE ALL!
 func init() {
-	//change it!
-	botToken = ""
-	vkToken = ""
-	//Check VK messages in Chat #1
+	botToken = "" //Get one in Public VK Settings in Work with API: https://vk.com/club12345?act=tokens
+	vkToken = "" //https://vkhost.github.io
+	//Check VK messages in Chat #1 (first chat of bot's conversation) You need to Enable Bot messages and Bot Ivbiting to chats
+	//in VK public settings https://vk.com/club1234?act=messages&tab=bots
+	//And Enable LongPoll API v.5.85
+	//Invite Public to conversation
 	chatID = 1
+	//Set channel ID 
+	discordChannelID = "12345" 
+        discordBotID = "12345" 
+	//Owner's ID of VKontakte public
+ 	myID  = 1234 //CHANGE IT
 }
 
 func main() {
-
 	//Discord Part (Get message from chat #)
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + botToken)
@@ -91,11 +99,8 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	////Set channel ID 
-	var discordChannelID = "12345" //CHANGE IT!
 	if m.ChannelID == discordChannelID {
 		//Get new message
-		var discordBotID = "12345" //CHANGE IT!
 		var prefix = ""
 
 		//If not messages from server (BOT) = from users in discord channel
@@ -104,6 +109,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 			consoleMSG = prefix + ": " + m.Content
 		} else { //if messages from Discord Minecraft Bot
 			// Create replacer with pairs as arguments.
+			//Fixing some EMOJIS to VK format
 			r := strings.NewReplacer(":octagonal_sign:", "&#9940;",
 				":white_check_mark:", "&#9989;",
 				":heavy_plus_sign:", "&#10133;",
@@ -118,7 +124,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		//Call sendTOVk
-		chatID = 1 //CHANGE IT	
 		sendToVK(vkToken, consoleMSG, chatID)
 	}
 }
@@ -149,14 +154,11 @@ func getFromVK(s *discordgo.Session, token string, chID int64) {
 
 		log.Printf("%s", update.Message.String())
 
-		//Make for all admins of public
-		var myID int64 = 1234 //CHANGE IT	
-		var iliyaID int64 = 1234 //CHANGE IT	
+		//Make for all admins of public	
 		//Send update.Message from chatID to Discord
-		if update.Message.FromID == myID || update.Message.FromID == iliyaID {
+		if update.Message.FromID == myID {
 
 			var msgText = update.Message.Text
-			var discordChannelID = "1234" //CHANGE IT	
 
 			//Send TO Discord
 			messageToDiscordCreate(s, discordChannelID, msgText)
